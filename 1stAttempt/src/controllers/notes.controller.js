@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import NoteModel from "../models/notes.model.js";
 
 // ---- create a note ----
@@ -31,7 +32,7 @@ export const createNote = async (req, res) => {
     description,
   });
 
-    return res.status(201).json({
+  return res.status(201).json({
     message: "Note created successfully",
     note: newNote,
   });
@@ -74,6 +75,13 @@ export const updateNoteById = async (req, res) => {
   const { description } = req.body;
 
   // ---- validation ----
+
+  // ... inside updateNoteById:
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      error: "Invalid Note ID format",
+    });
+  }
 
   if (!description) {
     return res.status(400).json({ error: "Description is required" });
