@@ -105,9 +105,15 @@ export const loginUser = async (req, res) => {
   }
 
   // ---- if user found, generate a token ----
-  const isMatch = await bcrypt.compare(password, user.password);
+  // const isMatch = await bcrypt.compare(password, user.password);
 
-  if (!isMatch) {
+  // if (!isMatch) {
+  //   return res.status(401).json({ error: "Invalid credentials" });
+  // }
+
+  // ---- using the method defined in the user model to compare passwords ----
+
+  if(!(await user.matchPassword(password))) {
     return res.status(401).json({ error: "Invalid credentials" });
   }
 

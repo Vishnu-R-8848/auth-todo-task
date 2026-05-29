@@ -7,13 +7,12 @@ export const createNote = async (req, res) => {
   const { title, description } = req.body;
 
   const token = req.cookies.token;
+  const user = jwt.verify(token, process.env.JWT_SECRET);
+  req.user = user;
 
   if (!token) {
     return res.status(401).json({ error: "Unauthorized" });
   }
-
-  const user = jwt.verify(token, process.env.JWT_SECRET);
-  req.user = user;
 
   if (!user) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -44,7 +43,7 @@ export const createNote = async (req, res) => {
   const newNote = await NoteModel.create({
     title,
     description,
-    user: user.userId,
+    user: user.email,
   });
 
   return res.status(201).json({
@@ -55,15 +54,15 @@ export const createNote = async (req, res) => {
 
 // ---- get all notes ----
 export const getAllNotes = async (req, res) => {
-  const _token = req.cookies.token;
-  const user = jwt.verify(_token, process.env.JWT_SECRET);
+  const token = req.cookies.token;
+  const user = jwt.verify(token, process.env.JWT_SECRET);
   req.user = user;
 
   if (!user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const notes = await NoteModel.find({ user: user.userId });
+  const notes = await NoteModel.find({ user: user.email });
   // ---- if no notes found ----
   if (!notes) {
     return res.status(404).json({ error: "Notes not found" });
@@ -78,6 +77,16 @@ export const getAllNotes = async (req, res) => {
 // ---- get a note by id ----
 export const getNoteById = async (req, res) => {
   const { id } = req.params;
+
+  const token = req.cookies.token;
+  const user = jwt.verify(token, process.env.JWT_SECRET);
+  req.user = user;
+
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  // ---- validation ----
 
   // ---- if note not found ----
 
@@ -103,6 +112,15 @@ export const getNoteById = async (req, res) => {
 // ---- update a note by id ----
 export const updateNoteById = async (req, res) => {
   const { id } = req.params;
+  const { description } = req.body;
+
+  const token = req.cookies.token;
+  const user = jwt.verify(token, process.env.JWT_SECRET);
+  req.user = user;
+
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
 
   // ---- validation ----
 
@@ -112,8 +130,6 @@ export const updateNoteById = async (req, res) => {
       error: "Invalid Note ID format",
     });
   }
-
-  const { description } = req.body;
 
   if (!description) {
     return res.status(400).json({ error: "Description is required" });
