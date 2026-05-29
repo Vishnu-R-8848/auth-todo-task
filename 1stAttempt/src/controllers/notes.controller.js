@@ -5,6 +5,13 @@ import NoteModel from "../models/notes.model.js";
 export const createNote = async (req, res) => {
   const { title, description } = req.body;
 
+  const token = req.cookies.token;
+  const user = jwt.verify(token, process.env.JWT_SECRET);
+
+  if(!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   // ---- validation ----
   if (!title) {
     return res.status(400).json({ error: "Title is required" });
@@ -30,6 +37,7 @@ export const createNote = async (req, res) => {
   const newNote = await NoteModel.create({
     title,
     description,
+    user: user.userId
   });
 
   return res.status(201).json({
