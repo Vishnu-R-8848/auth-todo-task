@@ -1,14 +1,19 @@
 import mongoose from "mongoose";
 import NoteModel from "../models/notes.model.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
 
 // ---- create a note ----
 export const createNote = async (req, res) => {
   const { title, description } = req.body;
 
   const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
   const user = jwt.verify(token, process.env.JWT_SECRET);
+  req.user = user;
 
   if (!user) {
     return res.status(401).json({ error: "Unauthorized" });
@@ -50,8 +55,9 @@ export const createNote = async (req, res) => {
 
 // ---- get all notes ----
 export const getAllNotes = async (req, res) => {
-  const token = req.cookies.token;
-  const user = jwt.verify(token, process.env.JWT_SECRET);
+  const _token = req.cookies.token;
+  const user = jwt.verify(_token, process.env.JWT_SECRET);
+  req.user = user;
 
   if (!user) {
     return res.status(401).json({ error: "Unauthorized" });
