@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import NoteModel from "../models/notes.model.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 // ---- create a note ----
 export const createNote = async (req, res) => {
@@ -8,7 +10,7 @@ export const createNote = async (req, res) => {
   const token = req.cookies.token;
   const user = jwt.verify(token, process.env.JWT_SECRET);
 
-  if(!user) {
+  if (!user) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
@@ -37,7 +39,7 @@ export const createNote = async (req, res) => {
   const newNote = await NoteModel.create({
     title,
     description,
-    user: user.userId
+    user: user.userId,
   });
 
   return res.status(201).json({
@@ -48,8 +50,14 @@ export const createNote = async (req, res) => {
 
 // ---- get all notes ----
 export const getAllNotes = async (req, res) => {
-  const notes = await NoteModel.find();
+  const token = req.cookies.token;
+  const user = jwt.verify(token, process.env.JWT_SECRET);
 
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const notes = await NoteModel.find({ user: user.userId });
   // ---- if no notes found ----
   if (!notes) {
     return res.status(404).json({ error: "Notes not found" });

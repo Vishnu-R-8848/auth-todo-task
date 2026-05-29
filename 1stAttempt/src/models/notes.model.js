@@ -12,11 +12,7 @@ const noteSchema = new mongoose.Schema(
       type: String,
       minlength: 10,
     },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    user: String,
   },
   {
     timestamps: true,
@@ -26,5 +22,3 @@ const noteSchema = new mongoose.Schema(
 const NoteModel = mongoose.model("Note", noteSchema);
 
 export default NoteModel;
-
-
