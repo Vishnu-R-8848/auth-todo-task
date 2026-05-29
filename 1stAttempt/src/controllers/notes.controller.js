@@ -56,9 +56,18 @@ export const getAllNotes = async (req, res) => {
 // ---- get a note by id ----
 export const getNoteById = async (req, res) => {
   const { id } = req.params;
-  const note = await NoteModel.findById(id);
 
   // ---- if note not found ----
+
+  // ... inside updateNoteById:
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      error: "Invalid Note ID format",
+    });
+  }
+
+  const note = await NoteModel.findById(id);
+
   if (!note) {
     return res.status(404).json({ error: "Note not found" });
   }
@@ -72,7 +81,6 @@ export const getNoteById = async (req, res) => {
 // ---- update a note by id ----
 export const updateNoteById = async (req, res) => {
   const { id } = req.params;
-  const { description } = req.body;
 
   // ---- validation ----
 
@@ -82,6 +90,8 @@ export const updateNoteById = async (req, res) => {
       error: "Invalid Note ID format",
     });
   }
+
+  const { description } = req.body;
 
   if (!description) {
     return res.status(400).json({ error: "Description is required" });
@@ -116,9 +126,18 @@ export const updateNoteById = async (req, res) => {
 // ---- delete a note by id ----
 export const deleteNoteById = async (req, res) => {
   const { id } = req.params;
-  const deletedNote = await NoteModel.findByIdAndDelete(id);
 
   // ---- if note not found ----
+
+  // ... inside updateNoteById:
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({
+      error: "Invalid Note ID format",
+    });
+  }
+
+  const deletedNote = await NoteModel.findByIdAndDelete(id);
+
   if (!deletedNote) {
     return res.status(404).json({ error: "Note not found" });
   }
